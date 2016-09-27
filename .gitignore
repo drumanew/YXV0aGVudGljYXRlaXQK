@@ -5,6 +5,10 @@ deps
 *.plt
 erl_crash.dump
 ebin
-rel/example_project
 .concrete/DEV_MODE
 .rebar
+webserver/relx
+webserver/ebin
+webserver/rel
+webserver/_rel
+webserver/.erlang.mk
