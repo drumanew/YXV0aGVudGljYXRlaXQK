@@ -10,5 +10,6 @@ ebin
 webserver/relx
 webserver/ebin
 webserver/rel
+webserver/webserver.d
 webserver/_rel
 webserver/.erlang.mk
