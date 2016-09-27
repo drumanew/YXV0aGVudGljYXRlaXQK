@@ -9,7 +9,7 @@
 -record(state, {}).
 
 init(_, Req, _Opts) ->
-	{ok, Req, #state{}}.
+  {ok, Req, #state{}}.
 
 handle(Req, State=#state{}) ->
   {Method, Req2} = cowboy_req:method(Req),
@@ -17,21 +17,13 @@ handle(Req, State=#state{}) ->
     case Method of
       <<"POST">> ->
         {ok, Body, Req3} = cowboy_req:body(Req2),
-        io:format("~nBody:~n~p~n", [Body]),
-        {Qs, Req4} = cowboy_req:qs(Req3),
-        io:format("~nQs:~n~p~n", [Qs]),
-        {ok, Req5} =
-          cowboy_req:reply(
-            200,
-            [{<<"content-type">>, <<"text/plain">>}],
-            Body,
-            Req4),
-        Req5;
+        xml_handler:new_xml(Body),
+        Req3;
       _Other ->
-        {ok, Req3} = cowboy_req:reply(200, [], <<"Other request">>, Req2),
-        Req3
+        Req2
     end,
-  {ok, NewReq, State}.
+  {ok, NewReq1} = cowboy_req:reply(200, NewReq),
+  {ok, NewReq1, State}.
 
 terminate(_Reason, _Req, _State) ->
-	ok.
+  ok.
