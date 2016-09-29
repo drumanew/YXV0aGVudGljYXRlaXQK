@@ -27,9 +27,12 @@
 -export([initial/3]).
 -export([parsing/2]).
 -export([parsing/3]).
+-export([attributes/2]).
+-export([attributes/3]).
 
-
--record(state, { xml }).
+-record(record, { gtin, name, desc, company }).
+-record(st, { pending = #record{},
+              records = [] }).
 
 %% API.
 
@@ -52,18 +55,40 @@ init(Xml) ->
         gen_fsm:send_event(Pid, Event),
         Acc
     end),
-  {ok, initial, #state{ xml = Xml }}.
+  {ok, initial, #st{}}.
 
 initial(startDocument, StateData) ->
   {next_state, parsing, StateData};
 initial(_Event, StateData) ->
   {next_state, initial, StateData}.
 
+parsing({startElement, _, "BaseAttributeValues", _, _}, StateData) ->
+  {next_state, attributes, StateData};
 parsing(_Event, StateData) ->
-  ?DBG("~p", [_Event]),
-  case Event of
-    {}
   {next_state, parsing, StateData}.
+
+attributes({endElement, _, "BaseAttributeValues", _},
+           StateData = #st{ pending = #record{ gtin = GTIN, name = Name } })
+  when GTIN == undefined orelse Name == undefined ->
+  {next_state, parsing, StateData#st{ pending = #record{} }};
+attributes({endElement, _, "BaseAttributeValues", _},
+           StateData = #st{ pending = R, records = Recs }) ->
+  {next_state, parsing, StateData#st{ pending = #record{},
+                                      records = [R | Recs] }};
+attributes({startElement, _,"value", _, Attrs},
+           StateData = #st{ pending = R }) ->
+  case lists:keyfind("baseAttrId", 2, Attrs) of
+    {attribute, "baseAttrId", _, _, AttrId} ->
+      case lists:keyfind("value", 2, Attrs) of
+        {attribute, "value", _, _, AttrVal} ->
+          UpdR = set_attr(AttrId, AttrVal, R),
+          {next_state, attributes, StateData#st{ pending = UpdR }};
+        _ -> {next_state, attributes, StateData}
+      end;
+    _ -> {next_state, attributes, StateData}
+  end;
+attributes(_Event, StateData) ->
+  {next_state, attributes, StateData}.
 
 handle_event(endDocument, _StateName, StateData) ->
   {stop, normal, StateData};
@@ -76,13 +101,17 @@ initial(_Event, _From, StateData) ->
 parsing(_Event, _From, StateData) ->
   {reply, ignored, parsing, StateData}.
 
+attributes(_Event, _From, StateData) ->
+  {reply, ignored, attributes, StateData}.
+
 handle_sync_event(_Event, _From, StateName, StateData) ->
   {reply, ignored, StateName, StateData}.
 
 handle_info(_Info, StateName, StateData) ->
   {next_state, StateName, StateData}.
 
-terminate(_Reason, _StateName, _StateData) ->
+terminate(_Reason, _StateName, _StateData = #st{ records = Recs }) ->
+  save_records(Recs),
   ?DBG("terminate: ~p", [self()]),
   ok.
 
@@ -91,3 +120,34 @@ code_change(_OldVsn, StateName, StateData, _Extra) ->
 
 %% Private
 
+set_attr(_AttrId = "PROD_COVER_GTIN", AttrVal, Record) ->
+  ?DBG("set attribute ~s", [_AttrId]),
+  Record#record{ gtin = AttrVal };
+set_attr(_AttrId = "PROD_NAME", AttrVal, Record) ->
+  ?DBG("set attribute ~s", [_AttrId]),
+  Record#record{ name = AttrVal };
+set_attr(_AttrId = "PROD_DESC", AttrVal, Record) ->
+  ?DBG("set attribute ~s", [_AttrId]),
+  Record#record{ desc = AttrVal };
+set_attr(_AttrId = "BRAND_OWNER_NAME", AttrVal, Record) ->
+  ?DBG("set attribute ~s", [_AttrId]),
+  Record#record{ company = AttrVal };
+set_attr(_, _, Record) ->
+  Record.
+
+
+save_records (Recs) ->
+  {ok, File} = file:open("/tmp/test.csv", [write]),
+  [ write(File, Rec) || Rec <- Recs ],
+  ?DBG("~p record(s) written in ~s", [length(Recs), "/tmp/test.csv"]),
+  file:close(File).
+
+write (File, #record{ gtin    = GTIN,
+                      name    = Name,
+                      desc    = Desc,
+                      company = Company }) ->
+  Row = lists:map(fun repl/1, [GTIN, Name, Desc, Company]),
+  csv_gen:row(File, Row).
+
+repl (undefined) -> "";
+repl (_Other)    -> _Other.
