@@ -13,3 +13,9 @@ webserver/rel
 webserver/webserver.d
 webserver/_rel
 webserver/.erlang.mk
+colatz/relx
+colatz/ebin
+colatz/rel
+colatz/webserver.d
+colatz/_rel
+colatz/.erlang.mk
