@@ -137,17 +137,14 @@ set_attr(_, _, Record) ->
 
 
 save_records (Recs) ->
-  {ok, File} = file:open("/tmp/test.csv", [write]),
-  [ write(File, Rec) || Rec <- Recs ],
-  ?DBG("~p record(s) written in ~s", [length(Recs), "/tmp/test.csv"]),
-  file:close(File).
+  [ write(Rec) || Rec <- Recs ].
 
-write (File, #record{ gtin    = GTIN,
-                      name    = Name,
-                      desc    = Desc,
-                      company = Company }) ->
-  Row = lists:map(fun repl/1, [GTIN, Name, Desc, Company]),
-  csv_gen:row(File, Row).
+write (#record{ gtin    = GTIN,
+                name    = Name,
+                desc    = Desc,
+                company = Company }) ->
+  Row = lists:map(fun replace_undefined/1, [GTIN, Name, Desc, Company]),
+  xml_writer:write(Row).
 
-repl (undefined) -> "";
-repl (_Other)    -> _Other.
+replace_undefined (undefined) -> "";
+replace_undefined (_Other)    -> _Other.
