@@ -10,6 +10,6 @@ ebin
 */relx
 */ebin
 */rel
-*/webserver.d
+*/*.d
 */_rel
 */.erlang.mk
