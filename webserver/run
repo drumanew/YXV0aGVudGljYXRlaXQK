@@ -1,4 +1,13 @@
 #!/bin/sh
 
-erl -pa ebin/ -pa deps/*/ebin/ -eval "application:ensure_all_started(webserver)"
+if [ $# -gt 1 ] || [ "$1" = "-h" ] ; then
+  echo "Usage: "$0" [FILE], FILE - output .csv filename, default is /tmp/web_requests_data.csv"
+  exit 1
+fi
+
+if [ $1 ]; then
+  EXTRA="-webserver file \""$1"\""
+fi
+
+erl -pa ebin/ -pa deps/*/ebin/ -eval "application:ensure_all_started(webserver)" $EXTRA
 
