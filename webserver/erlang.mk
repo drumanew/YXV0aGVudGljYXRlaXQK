@@ -1492,14 +1492,6 @@ pkg_erlydtl_fetch = git
 pkg_erlydtl_repo = https://github.com/erlydtl/erlydtl
 pkg_erlydtl_commit = master
 
-PACKAGES += erl_csv_generator
-pkg_erl_csv_generator_name = erl_csv_generator
-pkg_erl_csv_generator_description = This erlang module allows you to generate CSV files in an easy way.
-pkg_erl_csv_generator_homepage = https://github.com/drumanew/erl_csv_generator
-pkg_erl_csv_generator_fetch = git
-pkg_erl_csv_generator_repo = https://github.com/drumanew/erl_csv_generator
-pkg_erl_csv_generator_commit = master
-
 PACKAGES += errd
 pkg_errd_name = errd
 pkg_errd_description = Erlang RRDTool library
