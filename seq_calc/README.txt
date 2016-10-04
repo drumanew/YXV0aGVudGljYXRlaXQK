@@ -10,7 +10,7 @@ Parameters:
   max_workers N :: integer()     : maximum number of workers, default is 500
   store_values Store :: bool()   : save lengths of all calculated values, default is 'false'
   min_num Min :: integer()       :
-  max_num Max :: integer()       : override test on range Min-Max, default is 0-999999
+  max_num Max :: integer()       : override test on range Min-Max, default is 1-999999
 
 Get currently calculated maximum chain length and related number:
 
