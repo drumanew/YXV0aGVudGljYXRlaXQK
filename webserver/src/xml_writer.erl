@@ -2,7 +2,6 @@
 -behaviour(gen_server).
 
 %% API.
--export([start_link/0]).
 -export([start_link/1]).
 -export([write/1]).
 
@@ -15,12 +14,8 @@
 -export([code_change/3]).
 
 -record(state, { file }).
--define(DEFAULT_FILENAME, "/tmp/web_requests_data.csv").
 
 %% API.
--spec start_link() -> {ok, pid()}.
-start_link() ->
-  start_link(?DEFAULT_FILENAME).
 
 -spec start_link(Filename :: string()) -> {ok, pid()}.
 start_link(Filename) ->

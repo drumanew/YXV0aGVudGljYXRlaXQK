@@ -6,8 +6,10 @@
 -export([start_http/0]).
 -export([init/1]).
 
+-define(DEFAULT_FILENAME, "/tmp/web_requests_data.csv").
+
 start_link() ->
-  start_link([]).
+  start_link(?DEFAULT_FILENAME).
 
 start_link(Args) ->
   supervisor:start_link({local, ?MODULE}, ?MODULE, Args).
