@@ -2,8 +2,6 @@
 
 -export ([validate/1]).
 
--compile(export_all).
-
 -spec
 validate ({gtin, Value :: iolist() | binary()}) -> ok | {error, term()}.
 validate ({gtin, Value}) ->
@@ -21,11 +19,12 @@ validate ({gtin, Value}) ->
 validate (_) ->
   {error, badarg}.
 
-
 validate ([CheckDigit], Acc) ->
   case (10 - (Acc rem 10)) rem 10 of
     CheckDigit -> ok;
     _ -> {error, invalid_check_digit}
   end;
-validate ([H | T], Acc) ->
-  validate(T, Acc + H).
+validate ([D, CheckDigit], Acc) ->
+  validate([CheckDigit], Acc + D*3);
+validate ([D1, D2 | T], Acc) ->
+  validate(T, Acc + D1*3 + D2).
