@@ -1,8 +1,6 @@
 -module(xml_handler).
 -behaviour(gen_fsm).
 
--define (DEBUG, ok).
-
 -ifdef (DEBUG).
 -define (DBG (F, A),
          io:format (standard_error,
