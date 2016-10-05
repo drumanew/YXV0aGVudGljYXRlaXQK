@@ -2,10 +2,6 @@
 
 -export ([task/1]).
 
--define (DEBUG, ok).
-
--compile (export_all).
-
 -define (FIB_MAX, 4000000).
 
 -ifdef (DEBUG).
@@ -102,9 +98,9 @@ largest_prime_factor (N) ->
   end.
 
 largest_prime_factor (N, CtrlFactor) ->
-  {McrSec, Value} =
+  {_McrSec, Value} =
     timer:tc(fun () -> largest_prime_factor(N, 1, CtrlFactor, 1) end),
-  ?DBG("Value: ~p, time: ~f sec~n", [Value, McrSec/1000000]),
+  ?DBG("Value: ~p, time: ~f sec~n", [Value, _McrSec/1000000]),
   Value.
 
 largest_prime_factor (N, K, CtrlFactor, CurrMax) ->
